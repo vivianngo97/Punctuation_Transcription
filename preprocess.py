@@ -6,12 +6,13 @@ import nltk
 import os
 import pandas as pd
 from keras.models import model_from_json
-
-DATA_PATH = os.getcwd() + "/data"
-TRAIN_FILE = os.path.join(DATA_PATH, "train.txt")
-DEV_FILE = os.path.join(DATA_PATH, "dev")
-TEST_FILE = os.path.join(DATA_PATH, "test")
-WORD_VOCAB_FILE = os.path.join(DATA_PATH, "vocabulary")
+import time #  for time stamp on file names
+#
+# DATA_PATH = os.getcwd() + "/data"
+# TRAIN_FILE = os.path.join(DATA_PATH, "train.txt")
+# DEV_FILE = os.path.join(DATA_PATH, "dev")
+# TEST_FILE = os.path.join(DATA_PATH, "test")
+# WORD_VOCAB_FILE = os.path.join(DATA_PATH, "vocabulary")
 
 f = open(TRAIN_FILE, "r")
 train_content = (f.read())
@@ -21,7 +22,8 @@ from nltk import corpus
 from nltk.corpus import brown
 # nltk.corpus.brown.sents()
 
-
+UNK = "UNK"
+NUM = "NUM"
 sentence_num = []
 word_num = []
 
@@ -63,6 +65,19 @@ indices_newchunk = indices_newchunk + add_endpts
 # max(np.diff(np.sort(indices_newchunk))) # maximum length is 50 now
 all_df["newid"] = (all_df.index.isin(indices_newchunk)).cumsum()  # some lines are too long
 
+
+
+##########
+# deal with numbers
+all_df.loc[all_df['words'].str.isdigit(), 'words'] = "9999"  # all numbers will be read as a number
+##########
+# deal with rare words
+all_words2= nltk.FreqDist(all_df["words"])
+MAX_VOCAB_SIZE = 10000
+increasing_count = sorted(all_words2, key=all_words2.get)
+word_features = increasing_count[-MAX_VOCAB_SIZE:-1]
+all_df.loc[~all_df['words'].isin(word_features), 'words'] = "<UNK>"  # rare words will be <UNK>
+
 # words, vocab, etc
 # prepare the words
 all_words = list(set(all_df["words"].values))
@@ -70,6 +85,8 @@ all_words.append("ENDPAD")
 n_all_words = len(all_words); print(n_all_words)
 tags = list(set(all_df["punc_next"].values))
 n_tags = len(tags); print(n_tags) # 41 tags - that's quite a bit
+
+##################### COMEBINE ALL CORPORA DATA FRAMES BY HERE
 
 
 
@@ -201,20 +218,20 @@ print(classification_report(test_eval_true, test_eval_pred))
 ############### SAVE THE MODEL
 # serialize model to JSON
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open("model_" + time.strftime("%Y%m%d-%H%M%S") + ".json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model.h5")
+model.save_weights("model_" + time.strftime("%Y%m%d-%H%M%S") + ".h5")
 print("Saved model to disk")
 
 ### LATER, LOAD THE MODEL
 # load json and create model
-json_file = open('model.json', 'r')
+json_file = open('model_' + "20200701-202753" + ".json", 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 # load weights into new model
-loaded_model.load_weights("model.h5")
+loaded_model.load_weights("model_" + "20200701-202753" + ".h5")
 print("Loaded model from disk")
 # evaluate loaded model on test data
 loaded_model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
@@ -226,7 +243,7 @@ print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
 test_eval_true = []
 test_eval_pred = []
 for row in range(X_te.shape[0]):
-    p = loaded_model.predict(np.array([X_te[row]]))
+    p = model.predict(np.array([X_te[row]]))
     p = np.argmax(p, axis=-1)
     for j in range(50):
         if all_words[X_te[row][j]] != "ENDPAD":
@@ -270,13 +287,14 @@ print(predict_sentence)
 
 ######## try a new sentence
 
-def predict_new(sent_play):
+def predict_new(mod=model, sent_play="hello"):
     predict_sentence = ""
     words_play = sent_play.split()
-    X_play = np.array([[word2idx[w] for w in words_play]])
+    words_play_vocab = [w if w in all_words else "<UNK>" for w in words_play]
+    X_play = np.array([[word2idx[w] for w in words_play_vocab]])
     # pos_tags = nltk.pos_tag(words)
     X_play = pad_sequences(maxlen=max_len, sequences=X_play, padding="post", value=n_all_words - 1)
-    prediction = model.predict(X_play)
+    prediction = mod.predict(X_play)
     prediction = np.argmax(prediction, axis=-1)
     for w, pred in zip(words_play, prediction[0]):
         predict_sentence += w + " " + tags[pred] + " "
@@ -286,6 +304,6 @@ def predict_new(sent_play):
         # print("{:15}: {}".format(all_words[w], tags[pred]))
     print(predict_sentence)
 
-predict_new("hello my name is bob my favorite stuffed animal is a cat and i love food")
-predict_new("hello my name is vivian i live in toronto where the sun gibbers")
-predict_new("hi my name is edward and i am an expert at machine learning i watch birds in my spare time")
+predict_new(model, "hello my name is bob my favorite stuffed animal is a cat and i love food")
+predict_new(model, "hello my name is vivian i live in toronto where the sun gibbers")
+predict_new(model, "hi my name is edward and i am an expert at machine learning i watch birds in my spare time")
