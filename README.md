@@ -1,3 +1,10 @@
+##### Table of Contents  
+[Headers](#headers)  
+[Emphasis](#emphasis)  
+...snip...    
+<a name="headers"/>
+## Headers
+
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
 The code in this repo can be used to train a new model. 
@@ -21,6 +28,14 @@ This repo also contains code that can be used to experiment with the trained mod
 
 # Evaluation
 - calculate precision, recall, and f1-score for each punctuation 
+
+# Future considerations:
+- include word embeddings using wordnet or word2vec
+- tune parameters of the model to improve diagnostics 
+- 
+
+
+# Examples 
 
 # Want to test it out?
 
