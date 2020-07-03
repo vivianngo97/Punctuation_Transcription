@@ -6,7 +6,7 @@
 - [Future-Considerations](#Future-Considerations)
 - [Examples](#Examples)
 - [Future-Considerations](#Future-Considerations)
-- [Test it out!](#Test-it-out)
+- [Test it out!](#Test-it-out!)
 
 
 
@@ -44,5 +44,5 @@ This repo also contains code that can be used to experiment with the trained mod
 
 # Examples 
 
-# Test it out
+# Test it out!
 
