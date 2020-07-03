@@ -86,5 +86,10 @@ Puntuation_Transcription> Have a nice day!
  
 </code></pre>
 
+## Via Python IDE
+- Clone this repository 
+- Run play.py
+- You can now test out the model!
+
 
 
