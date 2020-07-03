@@ -22,7 +22,7 @@ This repo also contains code that can be used to experiment with the trained mod
 - remove all punctuation that are not in [,.?!]
 - break sentences into chunks of MAX_CHUNK_SIZE (40) and pad if necessary
 - replace all numbers with numkey ("9999")
-- build vocabulary using the top MAX_VOCAB_SIZE (50000) words. rare words are changed to UNK ("UNK")
+- build vocabulary using the top MAX_VOCAB_SIZE (50000) common words. Other worsd are changed to UNK ("UNK")
 - enumerate words and their punctuation tags  
 - remove chunks with only one punctuation throughout 
 
