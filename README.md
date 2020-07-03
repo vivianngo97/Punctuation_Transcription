@@ -31,7 +31,7 @@ These are the data preprocessing steps:
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
 - Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
-- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
+- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
 - The example model has 32 units, 10 epochs
 
 # Evaluation
@@ -43,11 +43,15 @@ After the model is trained, it is then evaluated on a separate testing set based
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
 - Include word embeddings using wordnet or word2vec
-- Tune parameters of the model to improve diagnostics 
 - Use POS tag as a feature 
 - Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
+- Tune parameters of the model to improve diagnostics 
+- Train the model on more corpora and have more layers.
 
 # Examples 
+
+The example model is trained on 95,233 samples, validated on 10,581 samples, and took roughly 75 minutes to train. Below are the results. Note that accuracy is not the most important evaluation metric here because of the class imbalance of punctuations.
+
 
 <pre><code>
     print(hello word)
