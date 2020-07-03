@@ -58,7 +58,7 @@ class Punc_data(object):
         self.model = None
         self.loaded_model = None
         self.eval = None
-
+        self.eval_df = None
     def preprocess_data(self):
         """
         Preprocess the data so that we can use it for training and testing.
@@ -352,13 +352,13 @@ class Punc_data(object):
         except:
             print("eval file not found")
 
-        try:
-            pickle_in = open(files_directory + "df.pickle", "rb")
-            self.df = pickle.load(pickle_in)
-            pickle_in.close()
-            print("loaded df")
-        except:
-            print("df file not found")
+        #try:
+        #    pickle_in = open(files_directory + "df.pickle", "rb")
+        #    self.df = pickle.load(pickle_in)
+        #    pickle_in.close()
+        #    print("loaded df")
+        #except:
+        #    print("df file not found")
 
         #pickle_in = open(files_directory + "MAX_CHUNK_SIZE.pickle", "rb")
         #self.MAX_CHUNK_SIZE = pickle.load(pickle_in) # already specified when making this object
@@ -392,7 +392,9 @@ class Punc_data(object):
                     true = list(self.y_te[row][j]).index(1)
                     test_eval_true.append(true)
                     test_eval_pred.append(pred)
-        self.eval = classification_report(test_eval_true, test_eval_pred)
+        self.eval = classification_report(test_eval_true, test_eval_pred, target_names=self.tags,output_dict=True)
+        self.eval_df = pd.DataFrame(self.eval).transpose()
+        self.eval_df.to_csv('classification_report.csv', index=True)
         if show_eval:
             print(self.eval)
 

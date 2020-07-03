@@ -7,7 +7,7 @@ if __name__ == "__main__":
     my_try.load_model(my_dir)
     play = True
     while play:
-        user_input_sentence = input("\nPlease type a string and then press ENTER: ")
+        user_input_sentence = input("\nPlease type an unpunctuated string and then press ENTER: ")
         print(f'\nYou entered: {user_input_sentence}')
         print("\nLet's predict the punctuations: \n")
         my_try.predict_new(my_try.loaded_model, sent_play=user_input_sentence)
@@ -16,3 +16,4 @@ if __name__ == "__main__":
             play = False
     print ("\nHave a nice day!")
 
+# my_try.model_evaluations(this_model = my_try.loaded_model)
