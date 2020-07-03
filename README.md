@@ -66,7 +66,7 @@ The example model is trained on 95,233 samples, validated on 10,581 samples, and
 
 To test out this punctuation restoration model, follow the steps below. Note that you may be required to install some modules. 
 
-## Via command line:
+## Via Command Line:
 - Clone this repository 
 - Navigate to the directory of this repository: Punctuation_Transcription
 - Type python play.py
