@@ -38,6 +38,19 @@ After the model is trained, it is then evaluated on a separate testing set based
 - Recall for each punctuation 
 - F1-score for each punctuation 
 
+These are the evaluation metrics for the example model: 
+
+|              | precision | recall | f1-score | support     |
+| ------------ | --------- | ------ | -------- | ----------- |
+| !            | 0.115     | 0.307  | 0.167    | 625         |
+| SPACE        | 0.980     | 0.903  | 0.940    | 292840      |
+| .            | 0.732     | 0.817  | 0.772    | 12301       |
+| ,            | 0.406     | 0.728  | 0.521    | 24200       |
+| ?            | 0.223     | 0.528  | 0.314    | 1018        |
+| accuracy     | 0.885     | 0.885  | 0.885    | 0.884517076 |
+| macro avg    | 0.491     | 0.657  | 0.543    | 330984      |
+| weighted avg | 0.925     | 0.885  | 0.900    | 330984      |
+
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
 - Include word embeddings using wordnet or word2vec
