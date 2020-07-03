@@ -1,6 +1,11 @@
 ##### Table of Contents  
 - [Data-Preprocessing](#Data-Preprocessing)  
-[Emphasis](#emphasis)  
+- [Model](#Model)  
+- [Evaluation](#Evaluation)  
+- [Future-Considerations](#Future-Considerations)
+- [Examples](#Examples)
+- [Future-Considerations](#Future-Considerations)
+- [Test-it-out!](#Test-it-out!)
 ...snip...    
 <a name="headers"/>
 ## Headers
@@ -30,7 +35,7 @@ This repo also contains code that can be used to experiment with the trained mod
 # Evaluation
 - calculate precision, recall, and f1-score for each punctuation 
 
-# Future considerations:
+# Future-Considerations
 - include word embeddings using wordnet or word2vec
 - tune parameters of the model to improve diagnostics 
 - 
@@ -38,5 +43,5 @@ This repo also contains code that can be used to experiment with the trained mod
 
 # Examples 
 
-# Want to test it out?
+# Test-it-out!
 
