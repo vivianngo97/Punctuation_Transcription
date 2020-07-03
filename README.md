@@ -35,7 +35,10 @@ I have chosen to frame punctuation restoration as a sequence tagging problem whe
 - the example model has 32 units, 10 epochs
 
 # Evaluation
-- calculate Precision, Recall, and F1-score for each punctuation 
+After the model is trained, it is then evaluated on a separate testing set based on the following:
+- Precision for each punctuation 
+- Recall for each punctuation 
+- F1-score for each punctuation 
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
