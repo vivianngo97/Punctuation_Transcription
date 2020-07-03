@@ -1,9 +1,9 @@
 # Table of Contents  
 - [Overview](#Overview) 
-- [Data-Preprocessing](#Data-Preprocessing)  
+- [Data Preprocessing](#Data-Preprocessing)  
 - [Model](#Model)  
 - [Evaluation](#Evaluation)  
-- [Future-Considerations](#Future-Considerations)
+- [Future Considerations](#Future-Considerations)
 - [Examples](#Examples)
 - [Test it out!](#Test-it-out)
 
