@@ -76,13 +76,13 @@ To test out this punctuation restoration model, follow the steps below:
 <pre><code>
 Puntuation_Transcription> Please type a string and then press ENTER: 
 
-You entered: 
+Puntuation_Transcription> You entered: 
 
-Let's predict the punctuations:
+Puntuation_Transcription> Let's predict the punctuations:
 
-Do you want to play again? Please type yes if you would like to play again: 
+Puntuation_Transcription> Do you want to play again? Please type yes if you would like to play again: 
 
-Have a nice day!
+Puntuation_Transcription> Have a nice day!
  
 </code></pre>
 
