@@ -3,28 +3,34 @@ Punctuation Transcription
 Author: Vivian Ngo
 Date: July 2020
 """
+
+import os
+import time  # for time stamp on file names
+import pickle
 import nltk
+import keras
+import numpy as np
+import pandas as pd
+import tensorflow as tf
 nltk.download('brown')
 nltk.download('gutenberg')
 from nltk import corpus
 from nltk.corpus import brown
 from nltk.corpus import gutenberg
-import numpy as np
-import pandas as pd
-import tensorflow as tf
+import matplotlib.pyplot as plt
+import keras.backend as K
 from keras.models import model_from_json
-import time  # for time stamp on file names
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
-import keras.backend as K
+from keras.models import Sequential
 from sklearn.model_selection import train_test_split
 from keras.models import Model, Input
-from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional, Flatten
-import matplotlib.pyplot as plt
+from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional, Activation, InputLayer
 from sklearn.metrics import classification_report
 from sklearn.utils import class_weight
-import os
-import pickle
+from keras.optimizers import Adam
+from keras_self_attention import SeqSelfAttention
+
 
 
 class Punc_data(object):
@@ -37,7 +43,7 @@ class Punc_data(object):
         self.spacekey = "SPACE"
         self.numkey = "9999"
         self.MAX_VOCAB_SIZE = 50000
-        self.MAX_CHUNK_SIZE = 60  # max word length per chunk
+        self.MAX_CHUNK_SIZE = 40  # max word length per chunk
         self.df = None
         self.X_tr = None
         self.X_te = None
@@ -114,7 +120,7 @@ class Punc_data(object):
         # remove chunks that have only one punctuation throughout
         temp_df = df.copy()
         counts_unique = temp_df.groupby(["newid"], as_index=True)["punc_next"].nunique().reset_index()
-        singles = list(counts_unique[counts_unique["punc_next"] == 1]["newid"])
+        singles = list(counts_unique[counts_unique["punc_next"] == 1]["newid"])  # has only 1 unique punc
         temp_df = temp_df[~temp_df.newid.isin(singles)]
         temp_df = temp_df.reset_index(drop=True)
         df = temp_df
@@ -136,10 +142,12 @@ class Punc_data(object):
         df.loc[~df['words'].isin(vocab), 'words'] = self.UNK  # rare words UNK
 
         # prepare the words
-        vocab.append(self.PAD)  # vocab replacing all_words
+        vocab.append(self.numkey)
         vocab.append(self.UNK)
+        vocab.append(self.PAD)  # vocab replacing all_words
         n_vocab = len(vocab)
         tags = list(set(df["punc_next"].values))
+        # tags.append("pad_punc") # padding gets a different punctuation
         n_tags = len(tags)
 
         # process the chunks for training
@@ -181,20 +189,36 @@ class Punc_data(object):
         # y_tr2 = [[y.argmax() for y in y_train] for y_train in self.y_tr]]
         # sample_weights = class_weight.compute_sample_weight('balanced', y)
         print(time.strftime("%Y%m%d-%H%M%S") + " building model \n")
-        input = Input(shape=(self.MAX_CHUNK_SIZE,))
-        # MODEL
-        model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(
-            input)
-        # 50-dim embedding
-        model = Dropout(drop)(model)
-        model = Bidirectional(LSTM(units=units, return_sequences=True, recurrent_dropout=drop))(
-            model)  # variational biLSTM
-        out = TimeDistributed(Dense(self.n_tags, activation="softmax"))(model)  # softmax output layer #
-        model = Model(input, out)
-        model.compile(optimizer="adam",
-                      loss=weighted_ce,  # "categorical_crossentropy",
-                      metrics=["accuracy"])  # rmsprop, adam, ?
 
+        # NEW THINGS FROM HERE
+        model = Sequential()
+        model.add(InputLayer(input_shape=(self.MAX_CHUNK_SIZE,)))
+        model.add(Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE))
+        model.add(Dropout(0.1))
+        model.add(Bidirectional(LSTM(units=units, return_sequences=True)))
+        model.add(SeqSelfAttention())  ###########
+        model.add(TimeDistributed(Dense(self.n_tags)))
+        model.add(Activation('softmax'))
+
+        model.compile(loss=weighted_ce,
+                      optimizer=Adam(0.001),
+                      metrics=['accuracy'])
+
+        model.summary()
+        # TO HERE
+        #####commented from here....
+        ##input = Input(shape=(self.MAX_CHUNK_SIZE,))
+        # MODEL
+        ##model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(input)
+        # 50-dim embedding
+        ##model = Dropout(drop)(model)
+        ##model = Bidirectional(LSTM(units=units, return_sequences=True, recurrent_dropout=drop))(model)  # variational biLSTM
+        ##out = TimeDistributed(Dense(self.n_tags, activation="softmax"))(model)  # softmax output layer #
+        ##model = Model(input, out)
+        ##model.compile(optimizer="adam",
+        ##              loss=weighted_ce, # "categorical_crossentropy",
+        ##              metrics=["accuracy"]) # rmsprop, adam, ?
+        ##### to here ......
         # Directory where the checkpoints will be saved
         checkpoint_dir = './training_checkpoints'
         # Name of the checkpoint files
@@ -230,19 +254,95 @@ class Punc_data(object):
         self.model.save_weights("model_" + time.strftime("%Y%m%d-%H%M%S") + ".h5")
         print(time.strftime("%Y%m%d-%H%M%S") + "Saved model to disk \n")
 
-    def load_model(self, json_name, h5_name):
-        print(time.strftime("%Y%m%d-%H%M%S") + "loading model")
-        json_file = open(json_name, 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
-        loaded_model = model_from_json(loaded_model_json)
+    def load_model(self, files_directory):
+        """
+        Loads a model based on the relevant files from the files directory
+        :param files_directory:
+        :type files_directory:
+        :return:
+        :rtype:
+        """
+        # load the relevant parts of the model
+
+        try:
+            pickle_in = open(files_directory + "vocab.pickle", "rb")
+            self.vocab = pickle.load(pickle_in)
+            pickle_in.close()
+            self.n_vocab = len(self.vocab)
+            print("loaded vocab")
+        except:
+            print("vocab file not found")
+
+        try:
+            pickle_in = open(files_directory + "X_te.pickle", "rb")
+            self.X_te = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded X_te")
+        except:
+            print("X_te file not found")
+
+        try:
+            pickle_in = open(files_directory + "y_te.pickle", "rb")
+            self.y_te = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded y_te")
+        except:
+            print("y_te file not found")
+
+        try:
+            pickle_in = open(files_directory + "word2idx.pickle", "rb")
+            self.word2idx = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded word2idx")
+        except:
+            print("word2idx file not found")
+
+        try:
+            pickle_in = open(files_directory + "tags.pickle", "rb")
+            self.tags = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded tags")
+        except:
+            print("tags file not found")
+
+        try:
+            pickle_in = open(files_directory + "eval.pickle", "rb")
+            self.eval = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded eval")
+        except:
+            print("eval file not found")
+
+        try:
+            pickle_in = open(files_directory + "df.pickle", "rb")
+            self.df = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded df")
+        except:
+            print("df file not found")
+
+        #pickle_in = open(files_directory + "MAX_CHUNK_SIZE.pickle", "rb")
+        #self.MAX_CHUNK_SIZE = pickle.load(pickle_in) # already specified when making this object
+        #pickle_in.close()
+        # pickle_in = open(files_directory + "spacekey.pickle", "rb")
+        # self.spacekey = pickle.load(pickle_in)
+        # pickle_in.close()
+        # pickle_in = open(files_directory + "numkey.pickle", "rb")
+        # self.numkey = pickle.load(pickle_in)
+        # pickle_in.close()
+
+        # new_obj.loaded_model = tf.keras.models.model_from_json(directory + "model.json") # doesn't work
+        loaded_model = model_from_json(open(files_directory + "model.json").read(),
+                                       custom_objects={"SeqSelfAttention": SeqSelfAttention})
+        print ("loaded model")
+        loaded_model.load_weights(os.path.join(os.path.dirname(files_directory + "model.json"), 'model.h5'))
+        print("loaded model weights")
+        # json_file = open('model.json', 'r')
+        # loaded_model_json = json_file.read()
+        # json_file.close()
+        # loaded_model = tf.keras.models.model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights(h5_name)
-        print("Loaded model from disk")
-        # evaluate loaded model on test data
-        loaded_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        # score = loaded_model.evaluate(X_te, y_te, verbose=0)
-        # print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
+        # loaded_model.load_weights(directory + "model.h5")
         self.loaded_model = loaded_model
 
     def model_evaluations(self, this_model, show_eval=True):
@@ -253,7 +353,7 @@ class Punc_data(object):
         for row in range(self.X_te.shape[0]):
             p = this_model.predict(np.array([self.X_te[row]]))
             p = np.argmax(p, axis=-1)
-            for j in range(50):
+            for j in range(self.MAX_CHUNK_SIZE):
                 if self.vocab[self.X_te[row][j]] != "ENDPAD":
                     pred = p[0][j]
                     true = list(self.y_te[row][j]).index(1)
@@ -264,11 +364,12 @@ class Punc_data(object):
             print(self.eval)
 
     def predict_new(self, this_model, sent_play="hello"):
-        print(time.strftime("%Y%m%d-%H%M%S") + " making new predictions \n")
+        # print(time.strftime("%Y%m%d-%H%M%S") + " making new predictions \n")
         predict_sentence = ""
         sent_play = sent_play.lower()
         words_play = sent_play.split()
         words_play_vocab = [w if w in self.vocab else self.UNK for w in words_play]
+        words_play_vocab = [self.numkey if w.isdigit() else w for w in words_play_vocab]
         x_play = np.array([[self.word2idx[w] for w in words_play_vocab]])
         # pos_tags = nltk.pos_tag(words)
         x_play = pad_sequences(maxlen=self.MAX_CHUNK_SIZE, sequences=x_play, padding="post", value=self.n_vocab - 1)
@@ -278,6 +379,7 @@ class Punc_data(object):
             predict_sentence += w + " " + self.tags[pred] + " "
             # clean up
         predict_sentence = predict_sentence.replace(self.spacekey, " ")
+        # predict_sentence = predict_sentence.replace("pad_punc", " ")
         predict_sentence = (" ").join(predict_sentence.split())
         print(predict_sentence)
 
@@ -306,9 +408,13 @@ class ChunkGetter(object):
 def weighted_ce(targets, predictions):
     # def find_weights(targets):
     # need another function because los funcs can't take more arguments
-    # shape = targets.get_shape().as_list()
+    # print("target type:")
+    # print(type(targets))
+    # print("shape")
+    # print(targets.shape)
+    # ncols = targets.shape[-1]
     # print("targ_shape")
-    # ncols = shape[-1]
+    # ncols = shape[-]
     # dim = np.prod(shape[:-1])
     # stacked_df = tf.reshape(targets, [dim, cols])
     # stacked_df = tf.reshape(targets, [-1, ncols]) # find the count for every punctuation
@@ -316,11 +422,11 @@ def weighted_ce(targets, predictions):
     print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy \n")
     counts = tf.math.reduce_sum(targets, [0, 1])
     print(counts)
-    weights = 1 / (counts + 1)
+    weights = 1 / (counts ** 0.8 + 1)  ###### CAN ALTER THIS
     loss = tf.keras.losses.categorical_crossentropy(targets, predictions)
     print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy: start loop \n")
     average_loss = 0
-    for i in range(ncols):
+    for i in range(5):  # 5 total punctuations
         current_weight = weights[i]
         argmax_targets = tf.argmax(targets, axis=-1)
         current_mask = tf.cast(argmax_targets == i, tf.float32)
@@ -330,6 +436,6 @@ def weighted_ce(targets, predictions):
         average_loss += sum_loss
     print(average_loss)
     return average_loss  # actually this is total loss
-# https://stackoverflow.com/questions/43818584/custom-loss-function-in-keras
+    # https://stackoverflow.com/questions/43818584/custom-loss-function-in-keras
 
 
