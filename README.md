@@ -13,10 +13,10 @@
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
 The code in this repo can be used to train a new model. 
-This repo also contains code that can be used to experiment with the trained model. This model restores the followingpunctuations: [,.?!] and was trained on the brown corpus and the gutenberg corpus, consisting of a total of ___ words and ____ chunks.
+This repo also contains code that can be used to experiment with the trained model. This model restores the followingpunctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of ___ words and ____ chunks.
 
 # Data Preprocessing 
-- read in the corpora
+- read in the specified corpora (Brown and Gutenberg for the example model)
 - convert sentences to lowercase (no knowledge of casing)
 - map every word to the punctuation mark (or space) that follow it 
 - remove all punctuation that are not in [,.?!]
@@ -27,7 +27,7 @@ This repo also contains code that can be used to experiment with the trained mod
 - remove chunks with only one punctuation throughout 
 
 # Model 
-- the model is built as a tagging model where each word is tagged with the puncutation that follows it
+- the model is built as a sequence tagging model where each word is tagged with the punctuation that follows it
 - Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
 - custom loss function: weighted categorical_crossentropy (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
 - the example model has 32 units, 10 epochs
