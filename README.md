@@ -49,5 +49,12 @@ These are some enhancements that could improve the performance of the model.
 
 # Examples 
 
+<pre><code>
+    print(hello word)
+</code></pre>
+
+
+
+
 # Test it out
 
