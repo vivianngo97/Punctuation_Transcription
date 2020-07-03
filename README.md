@@ -45,7 +45,7 @@ These are some enhancements that could improve the performance of the model.
 - Include word embeddings using wordnet or word2vec
 - Tune parameters of the model to improve diagnostics 
 - Use POS tag as a feature 
-- Map rare words to a common word that has the same POS tag (e.g. map all rare proper nouns to "John")
+- Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
 
 # Examples 
 
