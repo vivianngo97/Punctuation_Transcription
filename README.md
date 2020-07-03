@@ -24,7 +24,7 @@ These are the data preprocessing steps:
 - Remove all punctuation that are not in [,.?!]
 - Break sentences into chunks of MAX_CHUNK_SIZE (40) and pad if necessary
 - Replace all numbers with numkey ("9999")
-- Build vocabulary using the top MAX_VOCAB_SIZE (50000) common words. Other worsd are changed to UNK ("UNK")
+- Build vocabulary using the MAX_VOCAB_SIZE (50000) top common words. Other worsd are changed to UNK ("UNK")
 - Enumerate words and their punctuation tags  
 - Remove chunks with only one punctuation throughout 
 
