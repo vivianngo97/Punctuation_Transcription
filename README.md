@@ -46,7 +46,7 @@ These are some enhancements that could improve the performance of the model.
 - Use POS tag as a feature 
 - Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
 - Tune the custom loss function to improve the class imbalance issue
-- Or, optimize macro F1 using something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun
+- Or, optimize macro F1 using a differentiable version of F1 (something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun)
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
 
