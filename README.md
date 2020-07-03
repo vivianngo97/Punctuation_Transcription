@@ -44,5 +44,5 @@ This repo also contains code that can be used to experiment with the trained mod
 
 # Examples 
 
-# Testitout
+# Test it out
 
