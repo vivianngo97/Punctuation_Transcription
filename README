@@ -18,4 +18,9 @@ This repo also contains code that can be used to experiment with the trained mod
 - Bidirectional LSTM model with Attention 
 - 32 units, 10 epochs
 - custom loss function: weighted categorical_crossentropy (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
-- 
+
+# Evaluation
+- calculate precision, recall, and f1-score for each punctuation 
+
+# Want to test it out?
+
