@@ -18,21 +18,21 @@ This repo also contains code that can be used to experiment with a trained examp
 
 # Data Preprocessing 
 These are the data preprocessing steps: 
-- read in the specified corpora (Brown and Gutenberg for the example model)
-- convert sentences to lowercase (no knowledge of casing)
-- map every word to the punctuation mark (or space) that follow it 
-- remove all punctuation that are not in [,.?!]
-- break sentences into chunks of MAX_CHUNK_SIZE (40) and pad if necessary
-- replace all numbers with numkey ("9999")
-- build vocabulary using the top MAX_VOCAB_SIZE (50000) common words. Other worsd are changed to UNK ("UNK")
-- enumerate words and their punctuation tags  
-- remove chunks with only one punctuation throughout 
+- Read in the specified corpora (Brown and Gutenberg for the example model)
+- Convert sentences to lowercase (no knowledge of casing)
+- Map every word to the punctuation mark (or space) that follow it 
+- Remove all punctuation that are not in [,.?!]
+- Break sentences into chunks of MAX_CHUNK_SIZE (40) and pad if necessary
+- Replace all numbers with numkey ("9999")
+- Build vocabulary using the top MAX_VOCAB_SIZE (50000) common words. Other worsd are changed to UNK ("UNK")
+- Enumerate words and their punctuation tags  
+- Remove chunks with only one punctuation throughout 
 
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
 - Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
-- custom loss function: weighted categorical crossentropy (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
-- the example model has 32 units, 10 epochs
+- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
+- The example model has 32 units, 10 epochs
 
 # Evaluation
 After the model is trained, it is then evaluated on a separate testing set based on the following:
@@ -42,10 +42,10 @@ After the model is trained, it is then evaluated on a separate testing set based
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
-- include word embeddings using wordnet or word2vec
-- tune parameters of the model to improve diagnostics 
-- use POS tag as a feature 
-- map rare words to a common word that has the same POS tag (e.g. map all rare proper nouns to "John")
+- Include word embeddings using wordnet or word2vec
+- Tune parameters of the model to improve diagnostics 
+- Use POS tag as a feature 
+- Map rare words to a common word that has the same POS tag (e.g. map all rare proper nouns to "John")
 
 # Examples 
 
