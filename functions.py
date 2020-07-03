@@ -43,6 +43,9 @@ class Punc_data(object):
         self.n_tags = None
         self.word2idx = None
         self.tag2idx = None
+        self.model = None
+        self.loaded_model = None
+        self.eval = None
 
     def preprocess_data(self):
         """
@@ -138,7 +141,7 @@ class Punc_data(object):
         self.word2idx = word2idx
         self.tag2idx = tag2idx
 
-    def my_model(self, units=10, drop=0.1, batch_size=32, epochs=3, validation=0.1, plt_show=True, save_model_params=True):
+    def build_model(self, units=10, drop=0.1, batch_size=32, epochs=3, validation=0.1, plt_show=True, save_model_params=True):
         input = Input(shape=(self.MAX_CHUNK_SIZE,))
         model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(input)
         # 50-dim embedding
@@ -205,6 +208,7 @@ class Punc_data(object):
 
     def predict_new(self, this_model, sent_play="hello"):
         predict_sentence = ""
+        sent_play = sent_play.lower()
         words_play = sent_play.split()
         words_play_vocab = [w if w in self.vocab else self.UNK for w in words_play]
         x_play = np.array([[self.word2idx[w] for w in words_play_vocab]])

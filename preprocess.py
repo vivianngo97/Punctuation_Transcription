@@ -235,8 +235,8 @@ loaded_model.load_weights("model_" + "20200701-202753" + ".h5")
 print("Loaded model from disk")
 # evaluate loaded model on test data
 loaded_model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-score = loaded_model.evaluate(X_te, y_te, verbose=0)
-print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
+# score = loaded_model.evaluate(X_te, y_te, verbose=0)
+# print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
 
 
 ####### EVALUATIONS
