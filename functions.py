@@ -3,35 +3,41 @@ Punctuation Transcription
 Author: Vivian Ngo
 Date: July 2020
 """
-
 import nltk
+nltk.download('brown')
+nltk.download('gutenberg')
 from nltk import corpus
 from nltk.corpus import brown
 from nltk.corpus import gutenberg
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from keras.models import model_from_json
 import time  # for time stamp on file names
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
+import keras.backend as K
 from sklearn.model_selection import train_test_split
 from keras.models import Model, Input
-from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional
+from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional, Flatten
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
+from sklearn.utils import class_weight
+import os
+import pickle
 
 
 class Punc_data(object):
     def __init__(self, corpora=[nltk.corpus.brown, nltk.corpus.gutenberg]):
         self.corpora = corpora
-        self.puncs = '[ ,.?!:;\-\'\"``]'
-        self.list_puncs = list(self.puncs) + ["``", "\'\'"]
+        self.puncs = ',.?!'
+        self.list_puncs = list(self.puncs)  # + ["``", "\'\'"]
         self.PAD = "ENDPAD"
         self.UNK = "UNK"
         self.spacekey = "SPACE"
         self.numkey = "9999"
-        self.MAX_VOCAB_SIZE = 10000
-        self.MAX_CHUNK_SIZE = 50  # max word length per chunk
+        self.MAX_VOCAB_SIZE = 50000
+        self.MAX_CHUNK_SIZE = 60  # max word length per chunk
         self.df = None
         self.X_tr = None
         self.X_te = None
@@ -56,8 +62,9 @@ class Punc_data(object):
         :return: None
         :rtype: None
         """
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing \n")
         # gather the data from specified corpora into the required format
-        df = pd.DataFrame(columns = ['words', 'pos', 'punc_next'])
+        df = pd.DataFrame(columns=['words', 'pos', 'punc_next'])
         df.columns = ['words', 'pos', 'punc_next']
         for corp in self.corpora:
             temp_df = pd.DataFrame()
@@ -74,14 +81,16 @@ class Punc_data(object):
             temp_df["punc_next"] = temp_df.apply(
                 lambda row: row.puncs_1_next +
                             (row.puncs_2_next if (row.puncs_2_next in self.list_puncs and
-                                                  row.puncs_1_next in self.list_puncs) else ""), axis=1)
+                                                  row.puncs_1_next not in self.list_puncs and
+                                                  row.puncs_1_next != self.spacekey and
+                                                  row.puncs_1_next != row.puncs_2_next) else ""), axis=1)
             temp_df = temp_df.drop(['puncs_1_next', 'puncs_2_next'], axis=1)
             temp_df = temp_df.reset_index(drop=True)
             # done. append to the full dataset
             df = pd.concat([df, temp_df])
-            temp_df = None # erase - clear space
+            temp_df = None  # erase - clear space
         df.reset_index()
-
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing: splitting into chunks \n")
         # split into chunks - can combine sentences
         indices_newsent = [i + 1 for i, x in enumerate(list(df["punc_next"])) if
                            any(j in x for j in [".", "!", "?"])]
@@ -89,6 +98,7 @@ class Punc_data(object):
         # some chunks exceed MAX_CHUNK_SIZE
         too_long = [i for i, x in enumerate(list(np.diff(indices_newchunk))) if
                     x > self.MAX_CHUNK_SIZE]  # places where the index is too big
+        print("these chunks are too long: ", str(len(too_long)))
         add_endpts = []
         for i in too_long:
             diff = indices_newchunk[i + 1] - indices_newchunk[i]
@@ -99,7 +109,23 @@ class Punc_data(object):
         indices_newchunk = indices_newchunk + add_endpts
         df["newid"] = (df.index.isin(indices_newchunk)).cumsum()
 
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing: removing chunks with one punctuation \n")
+
+        # remove chunks that have only one punctuation throughout
+        temp_df = df.copy()
+        counts_unique = temp_df.groupby(["newid"], as_index=True)["punc_next"].nunique().reset_index()
+        singles = list(counts_unique[counts_unique["punc_next"] == 1]["newid"])
+        temp_df = temp_df[~temp_df.newid.isin(singles)]
+        temp_df = temp_df.reset_index(drop=True)
+        df = temp_df
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing: cleaning \n")
         # cleaning
+        # deal with punctuation
+        # df.loc[df['punc_next']==".", 'punc_next'] = "<period>"
+        # df.loc[df['punc_next']==",", 'punc_next'] = "<comma>"
+        # df.loc[df['punc_next']=="!", 'punc_next'] = "<exclamation>"
+        # df.loc[df['punc_next']=="?", 'punc_next'] = "<question_mark>"
+
         # deal with numbers
         df.loc[df['words'].str.isdigit(), 'words'] = self.numkey  # all numbers will be read as a number
         ##########
@@ -110,7 +136,7 @@ class Punc_data(object):
         df.loc[~df['words'].isin(vocab), 'words'] = self.UNK  # rare words UNK
 
         # prepare the words
-        vocab.append(self.PAD) # vocab replacing all_words
+        vocab.append(self.PAD)  # vocab replacing all_words
         vocab.append(self.UNK)
         n_vocab = len(vocab)
         tags = list(set(df["punc_next"].values))
@@ -120,17 +146,19 @@ class Punc_data(object):
         getter = ChunkGetter(df)
         chunks = getter.chunks
         word2idx = {w: i for i, w in enumerate(vocab)}  # create dictionaries
-        tag2idx = {t: i for i, t in enumerate(tags)}
+        tag2idx = {t: i for i, t in enumerate(tags)}  #
 
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing: mapping and padding \n")
         #  map the chunks to a sequence of numbers and then pad the sequence.
         X = [[word2idx[w[0]] for w in c] for c in chunks]  # 0 element is the word
         X = pad_sequences(maxlen=self.MAX_CHUNK_SIZE, sequences=X, padding="post", value=n_vocab - 1)
+
+        # one hot encoding for y's
         y = [[tag2idx[w[2]] for w in c] for c in chunks]  # 2nd element is the tag
         y = pad_sequences(maxlen=self.MAX_CHUNK_SIZE, sequences=y, padding="post", value=tag2idx[self.spacekey])
-
         # change the y labels to categorical
         y = [to_categorical(i, num_classes=n_tags) for i in y]
-
+        print(time.strftime("%Y%m%d-%H%M%S") + " pre-processing: train and test set \n")
         # split into train and test set
         self.X_tr, self.X_te, self.y_tr, self.y_te = train_test_split(X, y, test_size=0.1)
         self.df = df
@@ -141,23 +169,50 @@ class Punc_data(object):
         self.word2idx = word2idx
         self.tag2idx = tag2idx
 
-    def build_model(self, units=10, drop=0.1, batch_size=32, epochs=3, validation=0.1, plt_show=True, save_model_params=True):
+    def build_model(self, units=10, drop=0.1, batch_size=32, epochs=10, validation=0.1, plt_show=True,
+                    save_model_params=True):
+        # imbalanced classes
+        y_ints = [y.argmax() for y in self.y_tr]
+        self.class_weights = class_weight.compute_class_weight('balanced',
+                                                               np.unique(y_ints),
+                                                               y_ints)
+        self.class_weights = dict(enumerate(self.class_weights))
+
+        # y_tr2 = [[y.argmax() for y in y_train] for y_train in self.y_tr]]
+        # sample_weights = class_weight.compute_sample_weight('balanced', y)
+        print(time.strftime("%Y%m%d-%H%M%S") + " building model \n")
         input = Input(shape=(self.MAX_CHUNK_SIZE,))
-        model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(input)
+        # MODEL
+        model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(
+            input)
         # 50-dim embedding
         model = Dropout(drop)(model)
-        model = Bidirectional(LSTM(units=units, return_sequences=True, recurrent_dropout=drop))(model)  # variational biLSTM
-        # can use mroe units
-        out = TimeDistributed(Dense(self.n_tags, activation="softmax"))(model)  # softmax output layer
-
+        model = Bidirectional(LSTM(units=units, return_sequences=True, recurrent_dropout=drop))(
+            model)  # variational biLSTM
+        out = TimeDistributed(Dense(self.n_tags, activation="softmax"))(model)  # softmax output layer #
         model = Model(input, out)
-        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]) # rmsprop, adam, ?
-        history = model.fit(self.X_tr, np.array(self.y_tr), batch_size=batch_size,
-                            epochs=epochs, validation_split=validation, verbose=1)
+        model.compile(optimizer="adam",
+                      loss=weighted_ce,  # "categorical_crossentropy",
+                      metrics=["accuracy"])  # rmsprop, adam, ?
+
+        # Directory where the checkpoints will be saved
+        checkpoint_dir = './training_checkpoints'
+        # Name of the checkpoint files
+        checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
+        checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath=checkpoint_prefix,
+            save_weights_only=True)
+        print(time.strftime("%Y%m%d-%H%M%S") + " building model: fitting model")
+        history = model.fit(self.X_tr, np.array(self.y_tr),
+                            batch_size=batch_size,
+                            epochs=epochs, validation_split=validation,
+                            verbose=1)  # ,
+        # class_weight=self.class_weights)
         hist = pd.DataFrame(history.history)
         plt.figure(figsize=(12, 12))
         plt.plot(hist["accuracy"])
         plt.plot(hist["val_accuracy"])
+        print(time.strftime("%Y%m%d-%H%M%S") + " building model: accuracy plots")
         if plt_show:
             plt.show()
         plt.savefig("accuracy_" + time.strftime("%Y%m%d-%H%M%S") + ".png")
@@ -173,9 +228,10 @@ class Punc_data(object):
             json_file.write(model_json)
         # serialize weights to HDF5
         self.model.save_weights("model_" + time.strftime("%Y%m%d-%H%M%S") + ".h5")
-        print("Saved model to disk")
+        print(time.strftime("%Y%m%d-%H%M%S") + "Saved model to disk \n")
 
     def load_model(self, json_name, h5_name):
+        print(time.strftime("%Y%m%d-%H%M%S") + "loading model")
         json_file = open(json_name, 'r')
         loaded_model_json = json_file.read()
         json_file.close()
@@ -190,7 +246,8 @@ class Punc_data(object):
         self.loaded_model = loaded_model
 
     def model_evaluations(self, this_model, show_eval=True):
-        # this_model can be self.model or self.loaded model
+        print(time.strftime("%Y%m%d-%H%M%S") + " evaluating model \n")
+        # just self.model now # old: this_model can be self.model or self.loaded model
         test_eval_true = []
         test_eval_pred = []
         for row in range(self.X_te.shape[0]):
@@ -207,6 +264,7 @@ class Punc_data(object):
             print(self.eval)
 
     def predict_new(self, this_model, sent_play="hello"):
+        print(time.strftime("%Y%m%d-%H%M%S") + " making new predictions \n")
         predict_sentence = ""
         sent_play = sent_play.lower()
         words_play = sent_play.split()
@@ -222,6 +280,7 @@ class Punc_data(object):
         predict_sentence = predict_sentence.replace(self.spacekey, " ")
         predict_sentence = (" ").join(predict_sentence.split())
         print(predict_sentence)
+
 
 class ChunkGetter(object):
 
@@ -243,5 +302,34 @@ class ChunkGetter(object):
         except:
             return None
 
+
+def weighted_ce(targets, predictions):
+    # def find_weights(targets):
+    # need another function because los funcs can't take more arguments
+    # shape = targets.get_shape().as_list()
+    # print("targ_shape")
+    # ncols = shape[-1]
+    # dim = np.prod(shape[:-1])
+    # stacked_df = tf.reshape(targets, [dim, cols])
+    # stacked_df = tf.reshape(targets, [-1, ncols]) # find the count for every punctuation
+    # print("stacked_df")
+    print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy \n")
+    counts = tf.math.reduce_sum(targets, [0, 1])
+    print(counts)
+    weights = 1 / (counts + 1)
+    loss = tf.keras.losses.categorical_crossentropy(targets, predictions)
+    print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy: start loop \n")
+    average_loss = 0
+    for i in range(ncols):
+        current_weight = weights[i]
+        argmax_targets = tf.argmax(targets, axis=-1)
+        current_mask = tf.cast(argmax_targets == i, tf.float32)
+        current_loss = current_weight * current_mask * loss
+        sum_loss = tf.math.reduce_sum(current_loss)
+        print("sum_loss:", average_loss)
+        average_loss += sum_loss
+    print(average_loss)
+    return average_loss  # actually this is total loss
+# https://stackoverflow.com/questions/43818584/custom-loss-function-in-keras
 
 
