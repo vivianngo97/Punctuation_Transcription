@@ -64,3 +64,18 @@ The example model is trained on 95,233 samples, validated on 10,581 samples, and
 
 # Test it out
 
+To test out this punctuation restoration model, follow the steps below: 
+
+## Via command line:
+- Clone this repository 
+- Navigate to the directory of this repository: Punctuation_Transcription
+- Type python play.py
+- You can now test out the model!
+- You will see something like this: 
+
+<pre><code>
+Puntuation_Transcription> Please type a string and then press ENTER: 
+</code></pre>
+
+
+
