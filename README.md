@@ -51,9 +51,9 @@ These are the evaluation metrics for the example model:
 | macro avg    | 0.491     | 0.657  | 0.543    | 330984      |
 | weighted avg | 0.925     | 0.885  | 0.900    | 330984      |
 
-Accuracy is roughly 0.885 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more spaces than other classes. Thus, a model that wrongly tags spaces everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger proxy od model performance.
+Accuracy is roughly 0.885 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more SPACE tags than others. Thus, a model that wrongly tags SPACE everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger measure of model performance.
 
-As we can see, there is a lack of precision for most punctuation marks. Recall is higher but is still not as high as it can possibly be, with some more enhancements (see below). 
+As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). The corresponding recall values are higher but can still be greatly improved with some enhancements (see below). 
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
