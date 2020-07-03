@@ -1,4 +1,5 @@
 ##### Table of Contents  
+- [Overview](#Overview) 
 - [Data-Preprocessing](#Data-Preprocessing)  
 - [Model](#Model)  
 - [Evaluation](#Evaluation)  
@@ -7,9 +8,9 @@
 - [Future-Considerations](#Future-Considerations)
 - [Test-it-out!](#Test-it-out)
 
-...snip...    
 
 
+# Overview
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
 The code in this repo can be used to train a new model. 
