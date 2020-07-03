@@ -39,7 +39,7 @@ This repo also contains code that can be used to experiment with the trained mod
 - include word embeddings using wordnet or word2vec
 - tune parameters of the model to improve diagnostics 
 - use POS tag as a feature 
-- map rare words to a common word that has the same POS tag (e.g. map all rare names to John)
+- map rare words to a common word that has the same POS tag (e.g. map all rare proper nouns to "John")
 
 # Examples 
 
