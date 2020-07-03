@@ -62,9 +62,6 @@ class Punc_data(object):
     def preprocess_data(self):
         """
         Preprocess the data so that we can use it for training and testing.
-        Creates self.data_df, self.X_tr, self.y_tr, self.X_te, and self.y_te (training and testing datasets).
-        :param corpora: a list of the nltk corpuses that we will use in training and testing
-        :type corpora: list
         :return: None
         :rtype: None
         """
@@ -147,7 +144,6 @@ class Punc_data(object):
         vocab.append(self.PAD)  # vocab replacing all_words
         n_vocab = len(vocab)
         tags = list(set(df["punc_next"].values))
-        # tags.append("pad_punc") # padding gets a different punctuation
         n_tags = len(tags)
 
         # process the chunks for training
@@ -177,8 +173,27 @@ class Punc_data(object):
         self.word2idx = word2idx
         self.tag2idx = tag2idx
 
-    def build_model(self, units=10, drop=0.1, batch_size=32, epochs=10, validation=0.1, plt_show=True,
+    def build_model(self, units=32, drop=0.1, batch_size=32, epochs=10, validation=0.1, plt_show=True,
                     save_model_params=True):
+        """
+        Build the RNN.
+        :param units: Units in LSTM
+        :type units: int
+        :param drop: Dropout
+        :type drop: float
+        :param batch_size: Batch size
+        :type batch_size: int
+        :param epochs: Number of epochs
+        :type epochs: int
+        :param validation: Proportion of validation set
+        :type validation: float
+        :param plt_show: Whether we want to show the accuracy plot or not
+        :type plt_show: bool
+        :param save_model_params:
+        :type save_model_params:
+        :return: None
+        :rtype: None
+        """
         # imbalanced classes
         y_ints = [y.argmax() for y in self.y_tr]
         self.class_weights = class_weight.compute_class_weight('balanced',
@@ -194,7 +209,7 @@ class Punc_data(object):
         model = Sequential()
         model.add(InputLayer(input_shape=(self.MAX_CHUNK_SIZE,)))
         model.add(Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE))
-        model.add(Dropout(0.1))
+        model.add(Dropout(drop))
         model.add(Bidirectional(LSTM(units=units, return_sequences=True)))
         model.add(SeqSelfAttention())  ###########
         model.add(TimeDistributed(Dense(self.n_tags)))
@@ -205,21 +220,7 @@ class Punc_data(object):
                       metrics=['accuracy'])
 
         model.summary()
-        # TO HERE
-        #####commented from here....
-        ##input = Input(shape=(self.MAX_CHUNK_SIZE,))
-        # MODEL
-        ##model = Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE, input_length=self.MAX_CHUNK_SIZE)(input)
-        # 50-dim embedding
-        ##model = Dropout(drop)(model)
-        ##model = Bidirectional(LSTM(units=units, return_sequences=True, recurrent_dropout=drop))(model)  # variational biLSTM
-        ##out = TimeDistributed(Dense(self.n_tags, activation="softmax"))(model)  # softmax output layer #
-        ##model = Model(input, out)
-        ##model.compile(optimizer="adam",
-        ##              loss=weighted_ce, # "categorical_crossentropy",
-        ##              metrics=["accuracy"]) # rmsprop, adam, ?
-        ##### to here ......
-        # Directory where the checkpoints will be saved
+
         checkpoint_dir = './training_checkpoints'
         # Name of the checkpoint files
         checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
@@ -245,14 +246,52 @@ class Punc_data(object):
         if save_model_params:
             self.save_model()
 
-    def save_model(self):
+    def save_model(self, this_model):
+        """
+        After configuring a model, you can choose to save the model, model weights, and related attributes.
+        This function attempts to save them all.
+        :param this_model: A model that is to be saved
+        :type this_model: keras.engine.sequential.Sequential
+        :return: None
+        :rtype: None
+        """
         # serialize model to JSON
-        model_json = self.model.to_json()
-        with open("model_" + time.strftime("%Y%m%d-%H%M%S") + ".json", "w") as json_file:
-            json_file.write(model_json)
-        # serialize weights to HDF5
-        self.model.save_weights("model_" + time.strftime("%Y%m%d-%H%M%S") + ".h5")
-        print(time.strftime("%Y%m%d-%H%M%S") + "Saved model to disk \n")
+        try:
+            model_json = this_model.to_json() # this model can be self.loaded model or self.model
+            timestamp = time.strftime("%Y%m%d-%H%M%S")
+            with open(timestamp + "_"+ "model" + ".json", "w") as json_file:
+                json_file.write(model_json)
+            # serialize weights to HDF5
+            this_model.save_weights(timestamp + "_" + "model" + ".h5")
+        except:
+            print ("No model attribute")
+
+        try:
+            pickle_out = open(timestamp + "_" + "vocab.pickle", "wb")
+            pickle.dump(self.vocab, pickle_out)
+            pickle_out.close()
+
+            pickle_out = open(timestamp + "_" + "tags.pickle", "wb")
+            pickle.dump(self.tags, pickle_out)
+            pickle_out.close()
+
+            pickle_out = open(timestamp + "_" + "word2idx.pickle", "wb")
+            pickle.dump(self.word2idx, pickle_out)
+            pickle_out.close()
+
+            pickle_out = open(timestamp + "_" + "X_te.pickle", "wb")
+            pickle.dump(self.X_te, pickle_out)
+            pickle_out.close()
+
+            pickle_out = open(timestamp + "_" + "y_te.pickle", "wb")
+            pickle.dump(self.y_te, pickle_out)
+            pickle_out.close()
+
+            pickle_out = open(timestamp + "_" + "eval.pickle", "wb")
+            pickle.dump(self.eval, pickle_out)
+            pickle_out.close()
+        except:
+            print("Object attributes missing")
 
     def load_model(self, files_directory):
         """
@@ -337,12 +376,6 @@ class Punc_data(object):
         print ("loaded model")
         loaded_model.load_weights(os.path.join(os.path.dirname(files_directory + "model.json"), 'model.h5'))
         print("loaded model weights")
-        # json_file = open('model.json', 'r')
-        # loaded_model_json = json_file.read()
-        # json_file.close()
-        # loaded_model = tf.keras.models.model_from_json(loaded_model_json)
-        # load weights into new model
-        # loaded_model.load_weights(directory + "model.h5")
         self.loaded_model = loaded_model
 
     def model_evaluations(self, this_model, show_eval=True):
@@ -406,36 +439,24 @@ class ChunkGetter(object):
 
 
 def weighted_ce(targets, predictions):
-    # def find_weights(targets):
-    # need another function because los funcs can't take more arguments
-    # print("target type:")
-    # print(type(targets))
-    # print("shape")
-    # print(targets.shape)
-    # ncols = targets.shape[-1]
-    # print("targ_shape")
-    # ncols = shape[-]
-    # dim = np.prod(shape[:-1])
-    # stacked_df = tf.reshape(targets, [dim, cols])
-    # stacked_df = tf.reshape(targets, [-1, ncols]) # find the count for every punctuation
-    # print("stacked_df")
+
     print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy \n")
     counts = tf.math.reduce_sum(targets, [0, 1])
     print(counts)
     weights = 1 / (counts ** 0.8 + 1)  ###### CAN ALTER THIS
     loss = tf.keras.losses.categorical_crossentropy(targets, predictions)
     print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy: start loop \n")
-    average_loss = 0
+    custom_loss = 0
     for i in range(5):  # 5 total punctuations
         current_weight = weights[i]
         argmax_targets = tf.argmax(targets, axis=-1)
         current_mask = tf.cast(argmax_targets == i, tf.float32)
         current_loss = current_weight * current_mask * loss
         sum_loss = tf.math.reduce_sum(current_loss)
-        print("sum_loss:", average_loss)
-        average_loss += sum_loss
-    print(average_loss)
-    return average_loss  # actually this is total loss
+        print("sum_loss:", custom_loss)
+        custom_loss += sum_loss
+    print(custom_loss)
+    return custom_loss
     # https://stackoverflow.com/questions/43818584/custom-loss-function-in-keras
 
 
