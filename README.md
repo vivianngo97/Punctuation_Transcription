@@ -5,8 +5,7 @@
 - [Evaluation](#Evaluation)  
 - [Future-Considerations](#Future-Considerations)
 - [Examples](#Examples)
-- [Future-Considerations](#Future-Considerations)
-- [Test it out!](#Test-it-out!)
+- [Test it out!](#Test-it-out)
 
 
 
@@ -16,7 +15,7 @@ Punctuations help to improve comprehension and readability. In this repo, I buil
 The code in this repo can be used to train a new model. 
 This repo also contains code that can be used to experiment with the trained model. This model restores the followingpunctuations: [,.?!] and was trained on the brown corpus and the gutenberg corpus, consisting of a total of ___ words and ____ chunks.
 
-# Data-Preprocessing 
+# Data Preprocessing 
 - read in the corpora
 - convert sentences to lowercase (no knowledge of casing)
 - map every word to the punctuation mark (or space) that follow it 
@@ -36,13 +35,11 @@ This repo also contains code that can be used to experiment with the trained mod
 # Evaluation
 - calculate precision, recall, and f1-score for each punctuation 
 
-# Future-Considerations
+# Future Considerations
 - include word embeddings using wordnet or word2vec
 - tune parameters of the model to improve diagnostics 
-- 
-
 
 # Examples 
 
-# Test it out!
+# Test it out
 
