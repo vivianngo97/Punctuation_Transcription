@@ -1,5 +1,5 @@
 ##### Table of Contents  
-[DataPreprocessing](#DataPreprocessing)  
+[Data-Preprocessing](#Data-Preprocessing)  
 [Emphasis](#emphasis)  
 ...snip...    
 <a name="headers"/>
@@ -11,7 +11,7 @@ Punctuations help to improve comprehension and readability. In this repo, I buil
 The code in this repo can be used to train a new model. 
 This repo also contains code that can be used to experiment with the trained model. This model restores the followingpunctuations: [,.?!] and was trained on the brown corpus and the gutenberg corpus, consisting of a total of ___ words and ____ chunks.
 
-# DataPreprocessing 
+# Data-Preprocessing 
 - read in the corpora
 - convert sentences to lowercase (no knowledge of casing)
 - remove all punctuation that are not in [,.?!]
