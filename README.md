@@ -4,9 +4,7 @@
 - [Model](#Model)  
 - [Evaluation](#Evaluation)  
 - [Future Considerations](#Future-Considerations)
-- [Examples](#Examples)
 - [Test it out!](#Test-it-out)
-
 
 
 # Overview
@@ -49,18 +47,6 @@ These are some enhancements that could improve the performance of the model.
 - Or, optimize macro F1 using a differentiable version of F1 (something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun)
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
-
-# Examples 
-
-The example model is trained on 95,233 samples, validated on 10,581 samples, and took roughly 75 minutes to train. Below are the results. Note that accuracy is not the most important evaluation metric here because of the class imbalance of punctuations.
-
-
-<pre><code>
-    print(hello word)
-</code></pre>
-
-
-
 
 # Test it out
 
