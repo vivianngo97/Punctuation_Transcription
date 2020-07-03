@@ -33,7 +33,7 @@ This repo also contains code that can be used to experiment with the trained mod
 - the example model has 32 units, 10 epochs
 
 # Evaluation
-- calculate precision, recall, and f1-score for each punctuation 
+- calculate Precision, Recall, and F1-score for each punctuation 
 
 # Future Considerations
 - include word embeddings using wordnet or word2vec
