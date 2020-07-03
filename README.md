@@ -6,9 +6,8 @@
 - [Examples](#Examples)
 - [Future-Considerations](#Future-Considerations)
 - [Test-it-out!](#Test-it-out)
+
 ...snip...    
-<a name="headers"/>
-## Headers
 
 
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
