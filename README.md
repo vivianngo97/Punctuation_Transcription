@@ -14,7 +14,7 @@ Punctuations help to improve comprehension and readability. In this repo, I buil
 
 The code in this repo can be used to train a new model. __functions.py__ includes the Punc_data object which can be used to build and configure a model, given a list of nltk corpora. 
 
-This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of ___ words and ____ chunks.
+This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of _____ words and ____ chunks.
 
 # Data Preprocessing 
 These are the data preprocessing steps: 
@@ -45,7 +45,8 @@ These are some enhancements that could improve the performance of the model.
 - Include word embeddings using wordnet or word2vec
 - Use POS tag as a feature 
 - Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
-- Try changing categorical weights or tune the custom loss function to improve the class imbalance issue
+- Tune the custom loss function to improve the class imbalance issue
+- Or, optimize macro F1 using something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
 
