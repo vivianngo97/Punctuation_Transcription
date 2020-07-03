@@ -29,9 +29,9 @@ This repo also contains code that can be used to experiment with the trained mod
 
 # Model 
 - the model is built as a tagging model where each word is tagged with the puncutation that follows it
-- Bidirectional LSTM model with Attention 
-- 32 units, 10 epochs
+- Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
 - custom loss function: weighted categorical_crossentropy (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE))
+- the example model has 32 units, 10 epochs
 
 # Evaluation
 - calculate precision, recall, and f1-score for each punctuation 
