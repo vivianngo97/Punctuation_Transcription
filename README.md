@@ -29,7 +29,7 @@ These are the data preprocessing steps:
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
 - Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
-- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
+- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE^0.75 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
 - The example model has 64 units, 10 epochs
 
 # Evaluation
@@ -51,12 +51,16 @@ These are the evaluation metrics for the example model:
 | macro avg    | 0.491     | 0.657  | 0.543    | 330984      |
 | weighted avg | 0.925     | 0.885  | 0.900    | 330984      |
 
+Accuracy is roughly 0.885 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more spaces than other classes. Thus, a model that wrongly tags spaces everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger proxy od model performance.
+
+As we can see, there is a lack of precision for most punctuation marks. Recall is higher but is still not as high as it can possibly be, with some more enhancements (see below). 
+
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
 - Include word embeddings using wordnet or word2vec
 - Use POS tag as a feature 
 - Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
-- Tune the custom loss function to improve the class imbalance issue
+- Tune the weights in the custom loss function to improve the class imbalance issue (1/count makes non-SPACE recall too low, but 1/sqrt(count) causes a lot of SPACE tags)
 - Or, optimize macro F1 using a differentiable version of F1 (something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun)
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
