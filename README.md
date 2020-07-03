@@ -1,5 +1,9 @@
- {:toc}
- 
+##### Table of Contents  
+[Data Preprocessing](#Data Preprocessing)  
+[Emphasis](#emphasis)  
+...snip...    
+<a name="headers"/>
+## Headers
 
 
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
