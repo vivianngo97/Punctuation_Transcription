@@ -19,6 +19,7 @@ This repo also contains code that can be used to experiment with the trained mod
 # Data-Preprocessing 
 - read in the corpora
 - convert sentences to lowercase (no knowledge of casing)
+- map every word to the punctuation mark (or space) that follow it 
 - remove all punctuation that are not in [,.?!]
 - break sentences into chunks of MAX_CHUNK_SIZE (40) and pad if necessary
 - replace all numbers with numkey ("9999")
