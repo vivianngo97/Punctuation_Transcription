@@ -64,7 +64,7 @@ The example model is trained on 95,233 samples, validated on 10,581 samples, and
 
 # Test it out
 
-To test out this punctuation restoration model, follow the steps below: 
+To test out this punctuation restoration model, follow the steps below. Note that you may be required to install some modules. 
 
 ## Via command line:
 - Clone this repository 
