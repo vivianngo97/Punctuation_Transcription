@@ -71,7 +71,7 @@ These are some enhancements that could improve the performance of the model.
 
 # Examples 
 
-<pre><code># my_try is a Punc_data object 
+<pre><code># my_try is a Punc_data object and my_try.loaded_model is the example model in this repo
 
 >>> my_try.predict_new(my_try.loaded_model, "this is a string of text with no punctuation this is a new sentence")
 this is a string of text with no punctuation . this is a new sentence .
