@@ -11,7 +11,7 @@
 # Overview
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
-The code in this repo can be used to train a new model. __functions.py__ includes the Punc_data object which can be used to build and configure a model, given a list of nltk corpora. 
+The code in this repo can be used to train a new model. __functions.py__ includes the __Punc_data__ object which can be used to build and configure a model, given a list of nltk corpora. 
 
 This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of 3313299 words and 105804 chunks.
 
@@ -29,10 +29,9 @@ These are the data preprocessing steps:
 
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
-- Bidirectional LSTM model with Dropout, Attention, and a custom loss function optimized with Adam 
-- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE^0.7 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
-- The example model has 0.3 dropout, 128 units per layer and, 10 epochs
-
+- Bidirectional LSTMs with Dropout, Attention, and a custom loss function optimized with Adam 
+- Custom weighted categorical crossentropy loss function (weights are inversely related to punctuation occurrences, e.g. SPACE_weight 1/(#SPACE_counts^0.7 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
+- The example model has 0.3 dropout, 128 units per layer, and 10 epochs
 
 # Evaluation
 After the model is trained, it is then evaluated on a separate testing set based on the following:
@@ -57,6 +56,8 @@ These are the evaluation metrics for the example model:
 Accuracy is roughly 0.899 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more SPACE tags than others. Thus, a model that wrongly tags SPACE everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger measure of model performance.
 
 As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). For punctuation marks with low precision, they can often be predicted as a tag incorrectly (please see Examples). The corresponding recall values are higher but can still be greatly improved with some enhancements (please see Future Considerations). 
+
+More evaluations (accuracy and weighted categorical crossentropy loss) can be found in __model_files/model_evals__.
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
