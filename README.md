@@ -71,7 +71,7 @@ These are some enhancements that could improve the performance of the model.
 
 <pre><code>  # my_try is a Punc_data object 
 >>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
-hello , this is a computer program 
+hello , this is a computer program .
 
 >>> my_try.predict_new(my_try.loaded_model, "how are you doing on this fine evening")
 how are you doing on this fine evening ?
@@ -94,8 +94,7 @@ To test out this punctuation restoration model, follow the steps below. Note tha
 - You can now test out the model!
 - You will see something like this: 
 
-<pre><code>
-Puntuation_Transcription> Please type a string and then press ENTER: 
+<pre><code>Puntuation_Transcription> Please type a string and then press ENTER: 
 
 Puntuation_Transcription> You entered: 
 
@@ -116,12 +115,10 @@ Puntuation_Transcription> Have a nice day!
 
 Here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. 
 
-<pre><code>
-mypunc = Punc_data([nltk.corpus.brown, nltk.corpus.gutenberg])
+<pre><code>mypunc = Punc_data([nltk.corpus.brown, nltk.corpus.gutenberg])
 mypunc.preprocess_data()
 mypunc.build_model(drop=0.3, units=128, epochs=10)
 mypunc.model_evaluations(mypunc.model)
 </code></pre>
-
 
 
