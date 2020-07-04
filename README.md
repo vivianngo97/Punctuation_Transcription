@@ -72,6 +72,10 @@ These are some enhancements that could improve the performance of the model.
 # Examples 
 
 <pre><code># my_try is a Punc_data object 
+
+>>> my_try.predict_new(my_try.loaded_model, "this is a string of text with no punctuation this is a new sentence")
+this is a string of text with no punctuation . this is a new sentence .
+
 >>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
 hello , this is a computer program .
 
@@ -86,6 +90,7 @@ hello , my name , is john ! how are you doing on this fine evening ?
 
 >>> my_try.predict_new(my_try.loaded_model, "wow you are amazing")
 wow ! you are amazing !
+
 </code></pre>
 
 # Test it out
