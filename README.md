@@ -121,7 +121,7 @@ Puntuation_Transcription> Have a nice day!
 
 ## Build a model yourself
 
-If you would like to build a model yourself, here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. Please note that the model can take a few hours to build and it is highly recommended to build the model using a GPU. I was able to build the model in roughly two hours using Google Colab.
+If you would like to build a model yourself, here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. Please note that the model can take a few hours to build and it is highly recommended to build the model using a GPU. I was able to build the example model in roughly two hours using Google Colab.
 
 <pre><code>import functions
 from functions import Punc_data
