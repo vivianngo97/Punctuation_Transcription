@@ -5,9 +5,7 @@
 - [Evaluation](#Evaluation)  
 - [Future Considerations](#Future-Considerations)
 - [Examples](#Examples)
-- [Test it out! (Run the model)](#Test-it-out)
-- [Build a model yourself!](#Build-a-model-yourself)
-
+- [Test it out!](#Test-it-out)
 # Overview
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
@@ -121,11 +119,9 @@ Puntuation_Transcription> Have a nice day!
 - Run __play.py__
 - You can now test out the model! (Similar to via Command Line)
 
-# Build a model yourself
+## Build a model yourself
 
-Here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. 
-
-Please note that the model can take a while to build and it is highly recommended to build the model using a GPU. I was able to build the model in roughly two hours using Google Colab.
+If you would like to build a model yourself, here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. Please note that the model can take a few hours to build and it is highly recommended to build the model using a GPU. I was able to build the model in roughly two hours using Google Colab.
 
 <pre><code>import functions
 from functions import Punc_data
