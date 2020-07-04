@@ -7,11 +7,9 @@
 - [Examples](#Examples)
 - [Test it out!](#Test-it-out)
 # Overview
-Punctuations help to improve comprehension and readability. In this repo, I build a Bidirectional RNN model to automatically restore puncutation marks in unpunctuated text. 
+Punctuations help to improve comprehension and readability. In this repo, I build a Bidirectional RNN model to automatically restore puncutation marks in unpunctuated text. The example model in this repo restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of 3313299 words and 105804 chunks.
 
-The code in this repo can be used to train a new model. [__functions.py__](https://github.com/vivianngo97/Punctuation_Transcription/blob/master/functions.py) includes the __Punc_data__ object which can be used to build and configure a model, given a list of nltk corpora. 
-
-This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of 3313299 words and 105804 chunks.
+This repo contains code that can be used to test a trained example model as well as code to train a new model. Please see [Test it out!](#Test-it-out) for more details.
 
 # Data Preprocessing 
 These are the data preprocessing steps: 
