@@ -211,7 +211,9 @@ class Punc_data(object):
         model.add(Embedding(input_dim=self.n_vocab, output_dim=self.MAX_CHUNK_SIZE))
         model.add(Dropout(drop))
         model.add(Bidirectional(LSTM(units=units, return_sequences=True)))
-        model.add(SeqSelfAttention())  ###########
+        model.add(Dropout(drop))
+        model.add(Bidirectional(LSTM(units=units, return_sequences=True)))
+        model.add(SeqSelfAttention())
         model.add(TimeDistributed(Dense(self.n_tags)))
         model.add(Activation('softmax'))
 
@@ -351,6 +353,14 @@ class Punc_data(object):
             print("loaded eval")
         except:
             print("eval file not found")
+
+        try:
+            pickle_in = open(files_directory + "eval_df.pickle", "rb")
+            self.eval_df = pickle.load(pickle_in)
+            pickle_in.close()
+            print("loaded eval_df")
+        except:
+            print("eval_df file not found")
 
         #try:
         #    pickle_in = open(files_directory + "df.pickle", "rb")

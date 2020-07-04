@@ -16,4 +16,4 @@ if __name__ == "__main__":
             play = False
     print ("\nHave a nice day!")
 
-# my_try.model_evaluations(this_model = my_try.loaded_model)
+    # my_try.model_evaluations(this_model = my_try.loaded_model)
