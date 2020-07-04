@@ -119,7 +119,9 @@ Puntuation_Transcription> Have a nice day!
 
 Here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. 
 
-<pre><code>mypunc = Punc_data([nltk.corpus.brown, nltk.corpus.gutenberg])
+<pre><code>import functions
+from functions import Punc_data
+mypunc = Punc_data([nltk.corpus.brown, nltk.corpus.gutenberg])
 mypunc.preprocess_data()
 mypunc.build_model(drop=0.3, units=128, epochs=10)
 mypunc.model_evaluations(mypunc.model)
