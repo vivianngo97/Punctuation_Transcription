@@ -69,11 +69,10 @@ These are some enhancements that could improve the performance of the model.
 
 # Examples 
 
-<pre><code>
->>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
+<pre><code>>>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
 hello , this is a computer program 
 
->>> my_try.predicy_new(my_try.loaded_model, "how are you doing on this fine evening")
+>>> my_try.predict_new(my_try.loaded_model, "how are you doing on this fine evening")
 how are you doing on this fine evening ?
 </code></pre>
 
