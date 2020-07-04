@@ -4,6 +4,7 @@
 - [Model](#Model)  
 - [Evaluation](#Evaluation)  
 - [Future Considerations](#Future-Considerations)
+- [Examples](#Examples)
 - [Test it out!](#Test-it-out)
 
 
@@ -55,7 +56,7 @@ These are the evaluation metrics for the example model:
 
 Accuracy is roughly 0.899 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more SPACE tags than others. Thus, a model that wrongly tags SPACE everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger measure of model performance.
 
-As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). The corresponding recall values are higher but can still be greatly improved with some enhancements (see below). 
+As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). For punctuation marks with low precision, they can often be predicted as a tag incorrectly (please see Examples). The corresponding recall values are higher but can still be greatly improved with some enhancements (please see Future Considerations). 
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
@@ -73,11 +74,14 @@ These are some enhancements that could improve the performance of the model.
 >>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
 hello , this is a computer program .
 
->>> my_try.predict_new(my_try.loaded_model, "how are you doing on this fine evening")
-how are you doing on this fine evening ?
+>>> my_try.predict_new(my_try.loaded_model, "how are you feeling today")
+how are you feeling today ?
 
 >>> my_try.predict_new(my_try.loaded_model, "my favorite colors are blue yellow and green")
 my favorite colors , are blue , yellow , and green .
+
+>>> my_try.predict_new(my_try.loaded_model, "hello my name is john how are you doing on this fine evening")
+hello , my name , is john ! how are you doing on this fine evening ?
 
 >>> my_try.predict_new(my_try.loaded_model, "wow you are amazing")
 wow ! you are amazing !
