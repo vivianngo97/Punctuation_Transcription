@@ -9,7 +9,7 @@
 # Overview
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
-The code in this repo can be used to train a new model. __functions.py__ includes the __Punc_data__ object which can be used to build and configure a model, given a list of nltk corpora. 
+The code in this repo can be used to train a new model. [__functions.py__](https://github.com/vivianngo97/Punctuation_Transcription/blob/master/functions.py) includes the __Punc_data__ object which can be used to build and configure a model, given a list of nltk corpora. 
 
 This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of 3313299 words and 105804 chunks.
 
@@ -63,7 +63,7 @@ These are some enhancements that could improve the performance of the model.
 - Use POS tag as a feature 
 - Map every rare word to a common word in the vocabulary that has the same POS tag (e.g. map all rare proper nouns to "John")
 - Tune the weights in the custom loss function to improve the class imbalance issue (1/count makes non-SPACE recall too low, but 1/sqrt(count) causes a lot of SPACE tags)
-- Or, optimize macro F1 using a differentiable version of F1 (something like: https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun)
+- Or, optimize macro F1 using a differentiable version of F1 (something like: [here](https://datascience.stackexchange.com/questions/66581/is-it-possible-to-make-f1-score-differentiable-and-use-it-directly-as-a-loss-fun))
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
 
@@ -93,7 +93,7 @@ wow ! you are amazing !
 
 # Test it out
 
-To test out this punctuation restoration model, follow the steps below. Note that you may be required to install some modules. 
+To test out this punctuation restoration model, you just need to run [__play.py__](https://github.com/vivianngo97/Punctuation_Transcription/blob/master/play.py). Please follow the steps below. Note that you may be required to install some modules. 
 
 ## Via Command Line:
 - Clone this repository 
@@ -121,7 +121,7 @@ Puntuation_Transcription> Have a nice day!
 
 ## Build a model yourself
 
-If you would like to build a model yourself, here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. Please note that the model can take a few hours to build and it is highly recommended to build the model using a GPU. I was able to build the example model in roughly two hours using Google Colab.
+If you would like to build a model yourself, here is some code to build the example model. The arguments can be configured. Please see [__functions.py__](https://github.com/vivianngo97/Punctuation_Transcription/blob/master/functions.py) for more details. Please note that the model can take a few hours to build and it is highly recommended to build the model using a GPU. I was able to build the example model in roughly two hours using Google Colab.
 
 <pre><code>import functions
 from functions import Punc_data
