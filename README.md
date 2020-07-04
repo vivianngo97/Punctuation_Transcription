@@ -55,7 +55,7 @@ Accuracy is roughly 0.899 percent. However, accuracy is not a sufficient metric 
 
 As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). For punctuation marks with low precision, they can often be predicted as a tag incorrectly (please see Examples). The corresponding recall values are higher but can still be greatly improved with some enhancements (please see Future Considerations). 
 
-This table of metrics and more evaluations (training and validation accuracy and weighted categorical crossentropy loss) can be found in __model_files/model_evals__.
+This table of metrics and more evaluations (training and validation accuracy and weighted categorical crossentropy loss) can be found in [__model_files/model_evals__](https://github.com/vivianngo97/Punctuation_Transcription/tree/master/model_files/model_evals).
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
