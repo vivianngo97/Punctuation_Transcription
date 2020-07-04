@@ -4,15 +4,16 @@
 - [Model](#Model)  
 - [Evaluation](#Evaluation)  
 - [Future Considerations](#Future-Considerations)
+- [Examples](#Examples)
 - [Test it out!](#Test-it-out)
 
 
 # Overview
 Punctuations help to improve comprehension and readability. In this repo, I build a model to automatically restore puncutation marks in unpunctuated text. 
 
-The code in this repo can be used to train a new model. __functions.py__ includes the Punc_data object which can be used to build and configure a model, given a list of nltk corpora. 
+The code in this repo can be used to train a new model. __functions.py__ includes the __Punc_data__ object which can be used to build and configure a model, given a list of nltk corpora. 
 
-This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of _____ words and ____ chunks.
+This repo also contains code that can be used to experiment with a trained example model. This model restores the following punctuations: [,.?!] and was trained on the Brown corpus and the Gutenberg corpus, consisting of a total of 3313299 words and 105804 chunks.
 
 # Data Preprocessing 
 These are the data preprocessing steps: 
@@ -28,9 +29,9 @@ These are the data preprocessing steps:
 
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
-- Bidirectional LSTM model with 0.1 Dropout for Embedding, Attention, and custom loss function optimized with Adam 
-- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE^0.75 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
-- The example model has 64 units, 10 epochs
+- Bidirectional LSTMs with Dropout, Attention, and a custom loss function optimized with Adam 
+- Custom weighted categorical crossentropy loss function (weights are inversely related to punctuation occurrences, e.g. SPACE_weight 1/(#SPACE_counts^0.7 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
+- The example model has 0.3 dropout, 128 units per layer, and 10 epochs
 
 # Evaluation
 After the model is trained, it is then evaluated on a separate testing set based on the following:
@@ -42,18 +43,21 @@ These are the evaluation metrics for the example model:
 
 |              | precision | recall | f1-score | support     |
 | ------------ | --------- | ------ | -------- | ----------- |
-| !            | 0.115     | 0.307  | 0.167    | 625         |
-| SPACE        | 0.980     | 0.903  | 0.940    | 292840      |
-| .            | 0.732     | 0.817  | 0.772    | 12301       |
-| ,            | 0.406     | 0.728  | 0.521    | 24200       |
-| ?            | 0.223     | 0.528  | 0.314    | 1018        |
-| accuracy     | 0.885     | 0.885  | 0.885    | 0.884517076 |
-| macro avg    | 0.491     | 0.657  | 0.543    | 330984      |
-| weighted avg | 0.925     | 0.885  | 0.900    | 330984      |
+| .            | 0.750     | 0.859  | 0.801    | 12156       |
+| ?            | 0.254     | 0.618  | 0.360    | 997         |
+| ,            | 0.454     | 0.758  | 0.568    | 24248       |
+| SPACE        | 0.983     | 0.914  | 0.947    | 292606      |
+| !            | 0.153     | 0.379  | 0.218    | 683         |
+| accuracy     | 0.899     | 0.899  | 0.899    | 0.898872055 |
+| macro avg    | 0.519     | 0.706  | 0.579    | 330690      |
+| weighted avg | 0.932     | 0.899  | 0.911    | 330690      |
+|              |
 
-Accuracy is roughly 0.885 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more SPACE tags than others. Thus, a model that wrongly tags SPACE everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger measure of model performance.
+Accuracy is roughly 0.899 percent. However, accuracy is not a sufficient metric to use to evaluate this model because of the class imbalance. In particular, there are a lot more SPACE tags than others. Thus, a model that wrongly tags SPACE everywhere would be incorrect but have high accuracy. In this case, the macro F1-score is a stronger measure of model performance.
 
-As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). The corresponding recall values are higher but can still be greatly improved with some enhancements (see below). 
+As we can see, there is a lack of precision for most punctuation marks, especially those with low support (such as !). For punctuation marks with low precision, they can often be predicted as a tag incorrectly (please see Examples). The corresponding recall values are higher but can still be greatly improved with some enhancements (please see Future Considerations). 
+
+This table of metrics and more evaluations (training and validation accuracy and weighted categorical crossentropy loss) can be found in __model_files/model_evals__.
 
 # Future Considerations
 These are some enhancements that could improve the performance of the model.
@@ -65,6 +69,25 @@ These are some enhancements that could improve the performance of the model.
 - Tune parameters of the model to improve diagnostics 
 - Train the model on more corpora and have more layers
 
+# Examples 
+
+<pre><code> # my_try is a Punc_data object 
+>>> my_try.predict_new(my_try.loaded_model, "hello this is a computer program")
+hello , this is a computer program .
+
+>>> my_try.predict_new(my_try.loaded_model, "how are you feeling today")
+how are you feeling today ?
+
+>>> my_try.predict_new(my_try.loaded_model, "my favorite colors are blue yellow and green")
+my favorite colors , are blue , yellow , and green .
+
+>>> my_try.predict_new(my_try.loaded_model, "hello my name is john how are you doing on this fine evening")
+hello , my name , is john ! how are you doing on this fine evening ?
+
+>>> my_try.predict_new(my_try.loaded_model, "wow you are amazing")
+wow ! you are amazing !
+</code></pre>
+
 # Test it out
 
 To test out this punctuation restoration model, follow the steps below. Note that you may be required to install some modules. 
@@ -72,12 +95,11 @@ To test out this punctuation restoration model, follow the steps below. Note tha
 ## Via Command Line:
 - Clone this repository 
 - Navigate to the directory of this repository: Punctuation_Transcription
-- Type python play.py
+- Type __python play.py__
 - You can now test out the model!
 - You will see something like this: 
 
-<pre><code>
-Puntuation_Transcription> Please type a string and then press ENTER: 
+<pre><code>Puntuation_Transcription> Please type a string and then press ENTER: 
 
 Puntuation_Transcription> You entered: 
 
@@ -91,8 +113,19 @@ Puntuation_Transcription> Have a nice day!
 
 ## Via Python IDE
 - Clone this repository 
-- Run play.py
+- Run __play.py__
 - You can now test out the model!
 
+## Build a model yourself!
+
+Here is some code to build the example model. The arguments can be configured. Please see __functions.py__ for more details. 
+
+<pre><code>import functions
+from functions import Punc_data
+mypunc = Punc_data([nltk.corpus.brown, nltk.corpus.gutenberg])
+mypunc.preprocess_data()
+mypunc.build_model(drop=0.3, units=128, epochs=10)
+mypunc.model_evaluations(mypunc.model)
+</code></pre>
 
 
