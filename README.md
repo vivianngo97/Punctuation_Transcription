@@ -5,7 +5,7 @@
 - [Evaluation](#Evaluation)  
 - [Future Considerations](#Future-Considerations)
 - [Examples](#Examples)
-- [Test it out!](#Test-it-out)
+- [Test it out! (Run the model)](#Test-it-out)
 - [Build a model yourself!](#Build-a-model-yourself)
 
 # Overview
