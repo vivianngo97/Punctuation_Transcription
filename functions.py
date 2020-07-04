@@ -298,10 +298,10 @@ class Punc_data(object):
     def load_model(self, files_directory):
         """
         Loads a model based on the relevant files from the files directory
-        :param files_directory:
-        :type files_directory:
-        :return:
-        :rtype:
+        :param files_directory: the file directory that holds the Punc_data attributes and model
+        :type files_directory: str
+        :return: None
+        :rtype: None
         """
         # load the relevant parts of the model
 
@@ -361,25 +361,6 @@ class Punc_data(object):
             print("loaded eval_df")
         except:
             print("eval_df file not found")
-
-        #try:
-        #    pickle_in = open(files_directory + "df.pickle", "rb")
-        #    self.df = pickle.load(pickle_in)
-        #    pickle_in.close()
-        #    print("loaded df")
-        #except:
-        #    print("df file not found")
-
-        #pickle_in = open(files_directory + "MAX_CHUNK_SIZE.pickle", "rb")
-        #self.MAX_CHUNK_SIZE = pickle.load(pickle_in) # already specified when making this object
-        #pickle_in.close()
-        # pickle_in = open(files_directory + "spacekey.pickle", "rb")
-        # self.spacekey = pickle.load(pickle_in)
-        # pickle_in.close()
-        # pickle_in = open(files_directory + "numkey.pickle", "rb")
-        # self.numkey = pickle.load(pickle_in)
-        # pickle_in.close()
-
         # new_obj.loaded_model = tf.keras.models.model_from_json(directory + "model.json") # doesn't work
         loaded_model = model_from_json(open(files_directory + "model.json").read(),
                                        custom_objects={"SeqSelfAttention": SeqSelfAttention})
@@ -389,6 +370,15 @@ class Punc_data(object):
         self.loaded_model = loaded_model
 
     def model_evaluations(self, this_model, show_eval=True):
+        """
+        Evaluate the keras model for this Punc_data object
+        :param this_model: a keras model
+        :type this_model: keras.engine.sequential.Sequential
+        :param show_eval: whether we want to show the eval attribute
+        :type show_eval: bool
+        :return: None
+        :rtype: None
+        """
         print(time.strftime("%Y%m%d-%H%M%S") + " evaluating model \n")
         # just self.model now # old: this_model can be self.model or self.loaded model
         test_eval_true = []
@@ -409,6 +399,15 @@ class Punc_data(object):
             print(self.eval)
 
     def predict_new(self, this_model, sent_play="hello"):
+        """
+        Predict the sentence punctuations for sent_play using this_model.
+        :param this_model: Keras model
+        :type this_model: keras.engine.sequential.Sequential
+        :param sent_play:
+        :type sent_play: str
+        :return: None
+        :rtype: None
+        """
         # print(time.strftime("%Y%m%d-%H%M%S") + " making new predictions \n")
         predict_sentence = ""
         sent_play = sent_play.lower()
@@ -451,6 +450,9 @@ class ChunkGetter(object):
 
 
 def weighted_ce(targets, predictions):
+    """
+    Weighted categorical cross entropy function.
+    """
 
     print(time.strftime("%Y%m%d-%H%M%S") + " weighted cross entropy \n")
     counts = tf.math.reduce_sum(targets, [0, 1])
