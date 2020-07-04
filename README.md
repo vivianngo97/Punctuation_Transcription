@@ -119,7 +119,7 @@ Puntuation_Transcription> Have a nice day!
 ## Via Python IDE
 - Clone this repository 
 - Run __play.py__
-- You can now test out the model!
+- You can now test out the model! (Similar to via Command Line)
 
 ## Build a model yourself!
 
