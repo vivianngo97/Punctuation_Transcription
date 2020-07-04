@@ -30,7 +30,7 @@ These are the data preprocessing steps:
 # Model 
 I have chosen to frame punctuation restoration as a sequence tagging problem where each word is tagged with the punctuation that follows it. The model is a bidirectional recurrent neural network model with the following specifications:
 - Bidirectional LSTM model with Dropout, Attention, and a custom loss function optimized with Adam 
-- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE^0.75 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
+- Custom weighted categorical crossentropy loss function (weights are inverses of punctuation occurrences, e.g. 1/(#SPACE^0.7 + 1)). It is important to use a weighted loss function because of the class imbalance of the punctuation marks (e.g. there are far more spaces than exclamation points).
 - The example model has 0.3 dropout, 128 units per layer and, 10 epochs
 
 
@@ -94,7 +94,7 @@ To test out this punctuation restoration model, follow the steps below. Note tha
 ## Via Command Line:
 - Clone this repository 
 - Navigate to the directory of this repository: Punctuation_Transcription
-- Type python play.py
+- Type __python play.py__
 - You can now test out the model!
 - You will see something like this: 
 
@@ -112,7 +112,7 @@ Puntuation_Transcription> Have a nice day!
 
 ## Via Python IDE
 - Clone this repository 
-- Run play.py
+- Run __play.py__
 - You can now test out the model!
 
 ## Build a model yourself!
