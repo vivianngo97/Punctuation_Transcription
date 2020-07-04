@@ -75,6 +75,12 @@ hello , this is a computer program
 
 >>> my_try.predict_new(my_try.loaded_model, "how are you doing on this fine evening")
 how are you doing on this fine evening ?
+
+>>> my_try.predict_new(my_try.loaded_model, "my favorite colors are blue yellow and green")
+my favorite colors , are blue , yellow , and green .
+
+>>> my_try.predict_new(my_try.loaded_model, "wow you are amazing")
+wow ! you are amazing !
 </code></pre>
 
 # Test it out
