@@ -100,15 +100,15 @@ To test out this punctuation restoration model, you just need to run [__play.py_
 - You can now test out the model!
 - You will see something like this: 
 
-<pre><code>Puntuation_Transcription> Please type a string and then press ENTER: 
+<pre><code>Punctuation_Transcription> Please type a string and then press ENTER: 
 
-Puntuation_Transcription> You entered: 
+Punctuation_Transcription> You entered: 
 
-Puntuation_Transcription> Let's predict the punctuations:
+Punctuation_Transcription> Let's predict the punctuations:
 
-Puntuation_Transcription> Do you want to play again? Please type yes if you would like to play again: 
+Punctuation_Transcription> Do you want to play again? Please type yes if you would like to play again: 
 
-Puntuation_Transcription> Have a nice day!
+Punctuation_Transcription> Have a nice day!
  
 </code></pre>
 
